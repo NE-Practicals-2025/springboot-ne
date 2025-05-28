@@ -31,40 +31,36 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    @Bean
-    public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter();
-    }
     private final JwtAuthenticationEntryPoint authenticationEntryPoint;
     private final CustomUserDetailsService userDetailsService;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter; // ✅ Inject the filter properly
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable).authorizeHttpRequests(request ->
-                        request
-                                .requestMatchers(
-                                        "/api/v1/files/load-file/**"
-                                ).permitAll()
-                                .requestMatchers(
-                                        "/api/v1/auth/**",
-                                        "/api/v1/users/register"
-                                ).permitAll()
-                                .requestMatchers(
-                                        "/v3/api-docs/**",
-                                        "/swagger-ui/**"
-                                ).permitAll()
-                                .requestMatchers(
-                                        "/actuator/**"
-                                ).permitAll()
-                                .anyRequest().authenticated())
+        http.csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(request -> request
+                        .requestMatchers(
+                                "/api/v1/files/load-file/**",
+                                "/api/v1/auth/**",
+                                "/api/v1/users/register",
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/actuator/**"
+                        ).permitAll()
+                        .anyRequest().authenticated()
+                )
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authenticationProvider(authenticationProvider()).addFilterBefore(jwtAuthenticationFilter(),
-                        UsernamePasswordAuthenticationFilter.class);
-        http.exceptionHandling((exceptions) -> exceptions.authenticationEntryPoint(authenticationEntryPoint));
+                .authenticationProvider(authenticationProvider())
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(exceptions -> {
+                    exceptions.authenticationEntryPoint(authenticationEntryPoint);
+                    exceptions.accessDeniedHandler(accessDeniedHandler());
+                });
+
         return http.build();
     }
 
-
+    @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
         authenticationProvider.setUserDetailsService(userDetailsService);
@@ -74,7 +70,6 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-
         return new BCryptPasswordEncoder();
     }
 
