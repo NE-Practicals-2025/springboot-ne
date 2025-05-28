@@ -47,6 +47,7 @@ public class SecurityConfig {
                                 "/swagger-ui/**",
                                 "/actuator/**"
                         ).permitAll()
+                        .requestMatchers("/actuator/prometheus").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

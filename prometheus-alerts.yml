@@ -1,0 +1,13 @@
+groups:
+  - name: springboot-alerts
+    rules:
+      - alert: HighMemoryUsage
+        expr: jvm_memory_used_bytes / jvm_memory_max_bytes > 0.8
+        for: 30s
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage"
+          description: "Memory usage is above 80% for more than 30 seconds"
+    rule_files:
+      - "prometheus-alerts.yml"
