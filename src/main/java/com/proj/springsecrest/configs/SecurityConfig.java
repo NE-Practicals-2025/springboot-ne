@@ -41,7 +41,13 @@ public class SecurityConfig {
                 .authorizeHttpRequests(request -> request
                         // Public endpoints
                         .requestMatchers(
-                                "/api/v1/auth/**",
+                                "/api/v1/auth/admin/register",
+                                "/api/v1/auth/login",
+                                "/api/v1/auth/forgot-password",
+                                "/api/v1/auth/verify-account/",
+                                "/api/v1/auth/reset-password",
+                                "/api/v1/auth/request-verification",
+                                "/api/v1/auth/verify-account/**",
                                 "/api/v1/files/load-file/**",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
@@ -53,6 +59,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/employment/**").hasRole("MANAGER")
                         .requestMatchers("/api/v1/deductions/**").hasRole("MANAGER")
                         .requestMatchers("/api/v1/payroll/**").hasRole("MANAGER")
+                        .requestMatchers("/api/v1/auth/manager/register").hasRole("ADMIN")
 
                         // Admin-only endpoints
                         .requestMatchers("/api/v1/payslips/approve/**").hasRole("ADMIN")

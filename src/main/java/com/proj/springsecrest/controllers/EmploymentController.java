@@ -14,6 +14,7 @@ import com.proj.springsecrest.payload.request.UpdateEmploymentDTO;
 import com.proj.springsecrest.payload.request.UpdateUserDTO;
 import com.proj.springsecrest.payload.response.ApiResponse;
 import com.proj.springsecrest.repositories.IEmployeeRepository;
+import com.proj.springsecrest.repositories.IEmploymentRepository;
 import com.proj.springsecrest.repositories.IRoleRepository;
 import com.proj.springsecrest.services.IEmployeeService;
 import com.proj.springsecrest.services.IEmploymentService;
@@ -38,16 +39,26 @@ import java.util.UUID;
 public class EmploymentController {
     private final IEmploymentService employmentService;
     private final IEmployeeRepository employeeRepository;
+    private final IEmploymentRepository employmentRepository;
 
-    public EmploymentController(IEmploymentService employmentService, IEmployeeRepository employeeRepository) {
+    public EmploymentController(IEmploymentService employmentService, IEmployeeRepository employeeRepository, IEmploymentRepository employmentRepository) {
         this.employmentService = employmentService;
         this.employeeRepository = employeeRepository;
+        this.employmentRepository = employmentRepository;
     }
 
     @PutMapping(path = "/update")
     public ResponseEntity<ApiResponse> update(@RequestBody UpdateEmploymentDTO dto, @Param("code") UUID id) {
         Employment updated = this.employmentService.update(id, dto);
         return ResponseEntity.ok(ApiResponse.success("Employment updated successfully", updated));
+    }
+
+    @PutMapping(path = "/deactivate")
+    public ResponseEntity<ApiResponse> deactivate(@Param("code") UUID id) {
+        Employment employment = employmentRepository.findByCode(id).orElseThrow(()-> new BadRequestException("Employment with code doesn't exist"));
+        employment.setStatus(EEmployeementStatus.INACTIVE);
+        employmentRepository.save(employment);
+        return ResponseEntity.ok(ApiResponse.success("Employment Deactivated Successfully!"));
     }
 
     @GetMapping(path = "/all")

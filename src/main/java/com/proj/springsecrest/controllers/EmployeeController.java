@@ -83,15 +83,14 @@ public class EmployeeController {
         return ResponseEntity.ok(ApiResponse.success("User fetched successfully", this.employeeService.getByCode(id)));
     }
 
-    @PreAuthorize("hasRole('MANAGER')")
     @PostMapping(path = "/register")
     public ResponseEntity<ApiResponse> register(@RequestBody @Valid CreateEmployeeDTO dto) {
 
         Employee user = new Employee();
 
         String encodedPassword = passwordEncoder.encode(dto.getPassword());
-        Role role = roleRepository.findByName(dto.getRole()).orElseThrow(
-                () -> new BadRequestException("User Role not set"));
+        Role role = roleRepository.findByName(ERole.ROLE_EMPLOYEE).orElseThrow(
+                () -> new BadRequestException("Employee Role not set"));
 
         user.setEmail(dto.getEmail());
         user.setFirstName(dto.getFirstName());
