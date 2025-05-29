@@ -5,6 +5,7 @@ import com.proj.springsecrest.enums.ERole;
 import com.proj.springsecrest.enums.EUserStatus;
 import com.proj.springsecrest.exceptions.BadRequestException;
 import com.proj.springsecrest.exceptions.ResourceNotFoundException;
+import com.proj.springsecrest.helpers.MailService;
 import com.proj.springsecrest.helpers.Utility;
 import com.proj.springsecrest.models.User;
 import com.proj.springsecrest.payload.request.UpdateUserDTO;
@@ -26,6 +27,8 @@ import java.util.UUID;
 public class UserServiceImpl implements IUserService {
 
     private final IUserRepository userRepository;
+    private final MailService mailService;
+
 //    private final IFileService fileService;
 //    private final FileStorageService fileStorageService;
 
@@ -44,9 +47,15 @@ public class UserServiceImpl implements IUserService {
     public User create(User user) {
         try {
             Optional<User> userOptional = this.userRepository.findByEmail(user.getEmail());
+            Optional<User> userOptionPhone = this.userRepository.findByTelephone(user.getTelephone());
+
             if (userOptional.isPresent())
                 throw new BadRequestException(String.format("User with email '%s' already exists", user.getEmail()));
-            return this.userRepository.save(user);
+            if (userOptionPhone.isPresent())
+                throw new BadRequestException(String.format("User with phone '%s' already exists", user.getTelephone()));
+            User newUser =  this.userRepository.save(user);
+            this.mailService.registrationSuccessful(user.getEmail(), newUser.getFullName());
+            return newUser;
         } catch (DataIntegrityViolationException ex) {
             String errorMessage = Utility.getConstraintViolationMessage(ex, user);
             throw new BadRequestException(errorMessage, ex);

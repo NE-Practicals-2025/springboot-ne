@@ -9,6 +9,7 @@ import com.proj.springsecrest.payload.request.CreateUserDTO;
 import com.proj.springsecrest.payload.request.UpdateUserDTO;
 import com.proj.springsecrest.payload.response.ApiResponse;
 import com.proj.springsecrest.repositories.IRoleRepository;
+import com.proj.springsecrest.repositories.IUserRepository;
 import com.proj.springsecrest.services.IUserService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -22,6 +23,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -29,10 +31,13 @@ import java.util.UUID;
 public class UserController {
     private final IUserService userService;
     private final IRoleRepository roleRepository;
+    private final IUserRepository userRepository;
+
     private static final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-    public UserController(IUserService userService, IRoleRepository roleRepository) {
+    public UserController(IUserService userService, IRoleRepository roleRepository, IUserRepository userRepository) {
         this.userService = userService;
         this.roleRepository = roleRepository;
+        this.userRepository = userRepository;
     }
 
     @GetMapping(path = "/current-user")

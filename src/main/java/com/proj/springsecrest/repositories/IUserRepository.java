@@ -16,6 +16,7 @@ public interface IUserRepository extends JpaRepository<User, UUID> {
 
     Optional<User> findById(UUID userID);
 
+    Optional<User> findByTelephone(String telephone);
     Optional<User> findByEmail(String email);
 
     Page<User> findByRoles(Pageable pageable, ERole role);

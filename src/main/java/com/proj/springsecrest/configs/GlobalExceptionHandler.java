@@ -17,10 +17,10 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error("Route not found"));
     }
 
-    // Optional: catch all other unhandled exceptions
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse> handleAllExceptions(Exception ex) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponse.error("Something went wrong"));
-    }
+//    // Optional: catch all other unhandled exceptions
+//    @ExceptionHandler(Exception.class)
+//    public ResponseEntity<ApiResponse> handleAllExceptions(Exception ex) {
+//        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+//                .body(ApiResponse.error("Something went wrong"));
+//    }
 }

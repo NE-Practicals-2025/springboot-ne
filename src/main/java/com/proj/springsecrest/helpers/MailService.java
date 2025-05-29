@@ -121,4 +121,25 @@ public class MailService {
             throw new AppException("Error sending message", e);
         }
     }
+    public void registrationSuccessful(String to, String fullName) {
+        try {
+            MimeMessage message = this.mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+
+            Context context = new Context();
+            context.setVariable("fullName", fullName);
+            context.setVariable("supportEmail", supportEmail);
+            context.setVariable("currentYear", LocalDate.now().getYear());
+
+            String htmlContent = templateEngine.process("registration-success-email", context);
+
+            helper.setTo(to);
+            helper.setSubject("Registration Success");
+            helper.setText(htmlContent, true);
+
+            this.mailSender.send(message);
+        } catch (MessagingException e) {
+            throw new AppException("Error sending message", e);
+        }
+    }
 }
