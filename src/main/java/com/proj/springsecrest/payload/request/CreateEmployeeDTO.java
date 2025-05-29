@@ -9,8 +9,10 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
+import java.time.LocalDate;
+
 @Data
-public class CreateUserDTO {
+public class CreateEmployeeDTO {
 
     @Email
     private String email;
@@ -25,7 +27,7 @@ public class CreateUserDTO {
     @Pattern(regexp = "[0-9]{9,12}", message = "Your phone is not a valid tel we expect 2507***, or 07*** or 7***")
     private String telephone;
 
-    private EGender gender;
+    private LocalDate dateOfBirth;
 
     private ERole role;
 

@@ -34,7 +34,7 @@ public class OpenApiConfig {
                                 ))
                 .info(
                         new Info()
-                                .title("Springboot Project OpenAPI Docs")
-                                .version("1.0.0").description("Spring Boot Project OpenAPI Docs"));
+                                .title("ERP SYSTEM OpenAPI Docs")
+                                .version("1.0.0").description("Enterprise Resource Planning OpenAPI Docs with Employee & Payroll Management"));
     }
 }

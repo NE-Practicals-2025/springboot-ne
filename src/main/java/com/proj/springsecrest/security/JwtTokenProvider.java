@@ -1,7 +1,7 @@
 package com.proj.springsecrest.security;
 
-import com.proj.springsecrest.models.User;
-import com.proj.springsecrest.repositories.IUserRepository;
+import com.proj.springsecrest.models.Employee;
+import com.proj.springsecrest.repositories.IEmployeeRepository;
 import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -21,7 +21,7 @@ import java.util.Set;
 public class JwtTokenProvider {
     private static final Logger logger = LoggerFactory.getLogger(JwtTokenProvider.class);
 
-    private final IUserRepository userRepository;
+    private final IEmployeeRepository employeeRepository;
 
     @Value("${jwt.secret}")
     private String jwtSecret;
@@ -39,11 +39,11 @@ public class JwtTokenProvider {
             grantedAuthorities.add(new SimpleGrantedAuthority(role.getAuthority()));
         }
 
-        User authUser = userRepository.findById(userPrincipal.getId()).get();
+        Employee authUser = employeeRepository.findById(userPrincipal.getCode()).get();
 
         return Jwts.builder()
-                .setId(authUser.getId() + "")
-                .setSubject(userPrincipal.getId() + "")
+                .setId(authUser.getCode() + "")
+                .setSubject(userPrincipal.getCode() + "")
                 .signWith(SignatureAlgorithm.HS512, jwtSecret)
                 .claim("authorities", grantedAuthorities)
                 .setIssuedAt(new Date(System.currentTimeMillis()))

@@ -21,7 +21,7 @@ public class AuthController {
         this.authService = authService;
     }
     @PostMapping(path = "/login")
-    @RateLimit(value = 1, durationInSeconds = 5) // 1 login per 5 seconds per user/IP
+    @RateLimit(value = 10, durationInSeconds = 5) // 1 login per 5 seconds per user/IP
     public ResponseEntity<ApiResponse> login(@RequestBody LoginDTO loginDto){
         return ResponseEntity.ok(ApiResponse.success("Successfully Logged in", this.authService.login(loginDto.getEmail(), loginDto.getPassword())));
     }

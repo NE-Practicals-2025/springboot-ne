@@ -3,7 +3,9 @@ package com.proj.springsecrest.helpers;
 import java.security.SecureRandom;
 import java.util.Random;
 
-import com.proj.springsecrest.models.User;
+import com.proj.springsecrest.models.Deduction;
+import com.proj.springsecrest.models.Employee;
+import com.proj.springsecrest.models.Employment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -69,12 +71,29 @@ public class Utility {
         return activationCode.trim().equalsIgnoreCase(sentCode.trim());
     }
 
-    public static String getConstraintViolationMessage(DataIntegrityViolationException ex, User user) {
+    public static String getConstraintViolationMessage(DataIntegrityViolationException ex, Employee user) {
         String message = ex.getMostSpecificCause().getMessage();
         if (message.contains("email")) {
-            return String.format("User with email '%s' already exists", user.getEmail());
+            return String.format("Employee with email '%s' already exists", user.getEmail());
         } else if (message.contains("telephone")) {
-            return String.format("User with phone number '%s' already exists", user.getTelephone());
+            return String.format("Employee with phone number '%s' already exists", user.getTelephone());
+        }
+        // Add more checks for other unique constraints if necessary
+        return "A unique constraint violation occurred";
+    }
+    public static String getConstraintViolationMessage(DataIntegrityViolationException ex, Employment employment) {
+        String message = ex.getMostSpecificCause().getMessage();
+        if (message.contains("code")) {
+            return String.format("Employment with code '%s' already exists", employment.getCode());
+        }
+        // Add more checks for other unique constraints if necessary
+        return "A unique constraint violation occurred";
+    }
+
+    public static String getConstraintViolationMessage(DataIntegrityViolationException ex, Deduction deduction) {
+        String message = ex.getMostSpecificCause().getMessage();
+        if (message.contains("name")) {
+            return String.format("Deduction with name '%s' already exists", deduction.getDeductionName());
         }
         // Add more checks for other unique constraints if necessary
         return "A unique constraint violation occurred";

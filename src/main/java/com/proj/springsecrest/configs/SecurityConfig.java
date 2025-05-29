@@ -39,15 +39,31 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request -> request
+                        // Public endpoints
                         .requestMatchers(
-                                "/api/v1/files/load-file/**",
                                 "/api/v1/auth/**",
-                                "/api/v1/users/register",
-                                "/v3/api-docs/**",
+                                "/api/v1/files/load-file/**",
                                 "/swagger-ui/**",
+                                "/v3/api-docs/**",
                                 "/actuator/**"
                         ).permitAll()
-                        .requestMatchers("/actuator/prometheus").permitAll()
+
+                        // Manager-only endpoints
+                        .requestMatchers("/api/v1/employees/**").hasRole("MANAGER")
+                        .requestMatchers("/api/v1/employment/**").hasRole("MANAGER")
+                        .requestMatchers("/api/v1/deductions/**").hasRole("MANAGER")
+                        .requestMatchers("/api/v1/payroll/**").hasRole("MANAGER")
+
+                        // Admin-only endpoints
+                        .requestMatchers("/api/v1/payslips/approve/**").hasRole("ADMIN")
+
+                        // Payslip viewing (manager or admin)
+                        .requestMatchers("/api/v1/payslips/view/**").hasAnyRole("MANAGER", "ADMIN")
+
+                        // Employee-only endpoints
+                        .requestMatchers("/api/v1/payslips/mine/**").hasRole("EMPLOYEE")
+
+                        // Any other request requires authentication
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

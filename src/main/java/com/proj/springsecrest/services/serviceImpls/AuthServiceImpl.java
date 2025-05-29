@@ -6,11 +6,11 @@ import com.proj.springsecrest.exceptions.BadRequestException;
 import com.proj.springsecrest.exceptions.ResourceNotFoundException;
 import com.proj.springsecrest.helpers.MailService;
 import com.proj.springsecrest.helpers.Utility;
-import com.proj.springsecrest.models.User;
+import com.proj.springsecrest.models.Employee;
 import com.proj.springsecrest.payload.response.JwtAuthenticationResponse;
 import com.proj.springsecrest.security.JwtTokenProvider;
 import com.proj.springsecrest.services.IAuthService;
-import com.proj.springsecrest.services.IUserService;
+import com.proj.springsecrest.services.IEmployeeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -26,7 +26,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AuthServiceImpl implements IAuthService {
 
-    private final IUserService userService;
+    private final IEmployeeService employeeService;
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
     private static final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -43,29 +43,29 @@ public class AuthServiceImpl implements IAuthService {
         } catch (Exception e) {
             throw new AppException("Error generating token", e);
         }
-        User user = this.userService.getByEmail(email);
+        Employee user = this.employeeService.getByEmail(email);
         return new JwtAuthenticationResponse(jwt, user);
     }
 
     @Override
     public void initiateResetPassword(String email){
-        User user = this.userService.getByEmail(email);
+        Employee user = this.employeeService.getByEmail(email);
         user.setActivationCode(Utility.randomUUID(6,0,'N'));
-        user.setStatus(EUserStatus.RESET);
-        this.userService.save(user);
+        user.setStatus(EUserStatus.ACTIVE);
+        this.employeeService.save(user);
         mailService.sendResetPasswordMail(user.getEmail(), user.getFirstName() + " " + user.getLastName(), user.getActivationCode());
     }
 
 
     @Override
     public void resetPassword(String email, String passwordResetCode, String newPassword) {
-        User user = this.userService.getByEmail(email);
+        Employee user = this.employeeService.getByEmail(email);
         if (Utility.isCodeValid(user.getActivationCode(), passwordResetCode) &&
-                (user.getStatus().equals(EUserStatus.RESET)) || user.getStatus().equals(EUserStatus.PENDING)) {
+                (user.getStatus().equals(EUserStatus.ACTIVE)) || user.getStatus().equals(EUserStatus.ACTIVE)) {
             user.setPassword(passwordEncoder.encode(newPassword));
             user.setActivationCode(Utility.randomUUID(6, 0, 'N'));
             user.setStatus(EUserStatus.ACTIVE);
-            this.userService.save(user);
+            this.employeeService.save(user);
             this.mailService.sendPasswordResetSuccessfully(user.getEmail(), user.getFullName());
         } else {
             throw new BadRequestException("Invalid code or account status");
@@ -74,28 +74,28 @@ public class AuthServiceImpl implements IAuthService {
 
     @Override
     public void initiateAccountVerification(String email) {
-        User user = this.userService.getByEmail(email);
+        Employee user = this.employeeService.getByEmail(email);
         if (user.getStatus() == EUserStatus.ACTIVE) {
             throw new BadRequestException("User is already verified");
         }
         String verificationCode;
         do {
             verificationCode = Utility.generateAuthCode();
-        } while (this.userService.findByActivationCode(verificationCode).isPresent());
+        } while (this.employeeService.findByActivationCode(verificationCode).isPresent());
         LocalDateTime verificationCodeExpiresAt = LocalDateTime.now().plusHours(6);
         user.setActivationCode(verificationCode);
         user.setActivationCodeExpiresAt(verificationCodeExpiresAt);
         this.mailService.sendActivateAccountEmail(user.getEmail(), user.getFullName(), verificationCode);
-        this.userService.save(user);
+        this.employeeService.save(user);
     }
 
     @Override
     public void verifyAccount(String verificationCode) {
-        Optional<User> _user = this.userService.findByActivationCode(verificationCode);
+        Optional<Employee> _user = this.employeeService.findByActivationCode(verificationCode);
         if (_user.isEmpty()) {
             throw new ResourceNotFoundException("User", verificationCode, verificationCode);
         }
-        User user = _user.get();
+        Employee user = _user.get();
         if (user.getActivationCodeExpiresAt().isBefore(LocalDateTime.now())) {
             throw new BadRequestException("Verification code is invalid or expired");
         }
@@ -103,7 +103,7 @@ public class AuthServiceImpl implements IAuthService {
         user.setActivationCodeExpiresAt(null);
         user.setActivationCode(null);
         this.mailService.sendAccountVerifiedSuccessfullyEmail(user.getEmail(), user.getFullName());
-        this.userService.save(user);
+        this.employeeService.save(user);
     }
 
 

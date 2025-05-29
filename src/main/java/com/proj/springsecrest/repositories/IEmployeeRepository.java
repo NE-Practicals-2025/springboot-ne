@@ -1,7 +1,7 @@
 package com.proj.springsecrest.repositories;
 
 import com.proj.springsecrest.enums.ERole;
-import com.proj.springsecrest.models.User;
+import com.proj.springsecrest.models.Employee;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,20 +12,20 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface IUserRepository extends JpaRepository<User, UUID> {
+public interface IEmployeeRepository extends JpaRepository<Employee, UUID> {
 
-    Optional<User> findById(UUID userID);
+    Optional<Employee> findByCode(UUID userID);
 
-    Optional<User> findByTelephone(String telephone);
-    Optional<User> findByEmail(String email);
+    Optional<Employee> findByTelephone(String telephone);
+    Optional<Employee> findByEmail(String email);
 
-    Page<User> findByRoles(Pageable pageable, ERole role);
+    Page<Employee> findByRoles(Pageable pageable, ERole role);
 
-    Optional<User> findByActivationCode(String activationCode);
+    Optional<Employee> findByActivationCode(String activationCode);
 
-    @Query("SELECT u FROM User u" +
+    @Query("SELECT u FROM Employee u" +
             " WHERE (lower(u.firstName)  LIKE ('%' || lower(:searchKey) || '%')) " +
             " OR (lower(u.lastName) LIKE ('%' || lower(:searchKey) || '%')) " +
             " OR (lower(u.email) LIKE ('%' || lower(:searchKey) || '%'))")
-    Page<User> searchUser(Pageable pageable, String searchKey);
+    Page<Employee> searchEmployee(Pageable pageable, String searchKey);
 }

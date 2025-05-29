@@ -1,5 +1,5 @@
 package com.proj.springsecrest.enums;
 
 public enum ERole {
-    ADMIN, NORMAL
+    ROLE_ADMIN, ROLE_MANAGER, ROLE_EMPLOYEE
 }
